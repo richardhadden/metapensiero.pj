@@ -8,21 +8,24 @@
 import ast
 import logging
 
+from humps import camelize
+
 from ..js_ast import JSKeySubscript, JSStr, TargetNode
 
 logger = logging.getLogger(__name__)
 
 
 def _normalize_name(n):
-    if n.startswith('d_'):
-        n = n.replace('d_', '$')
-    elif n.startswith('dd_'):
-        n = n.replace('dd_', '$$')
+    if n.startswith("d_"):
+        n = n.replace("d_", "$")
+    elif n.startswith("dd_"):
+        n = n.replace("dd_", "$$")
     # allow to reference names that are Python's keywords by appending
     # a dash to them
-    elif not n.startswith('_') and n.endswith('_'):
+    elif not n.startswith("_") and n.endswith("_"):
         n = n[:-1]
-    return n
+    return camelize(n)
+
 
 def _normalize_dict_keys(transformer, keys):
     res = []
@@ -40,9 +43,11 @@ def _normalize_dict_keys(transformer, keys):
                 elif isinstance(key, TargetNode) and key.py_node is not None:
                     py_node = key.py_node
                 else:
-                    raise ValueError('Value of type %r cannot '
-                                     'be use as key' % type(key))
-                transformer.unsupported(py_node, True, 'Value of type %r cannot '
-                                        'be use as key' % type(key))
+                    raise ValueError(
+                        "Value of type %r cannot be use as key" % type(key)
+                    )
+                transformer.unsupported(
+                    py_node, True, "Value of type %r cannot be use as key" % type(key)
+                )
         res.append(key)
     return res
